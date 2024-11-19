@@ -81,6 +81,11 @@ This pipeline is pushed as a Tekton bundle to [quay.io](https://quay.io/reposito
 |BASE_IMAGE| Fully qualified base image name.| None| '$(tasks.inspect-image.results.BASE_IMAGE)'|
 |IMAGE_DIGEST| Image digest.| None| '$(tasks.build-image-index.results.IMAGE_DIGEST)'|
 |IMAGE_URL| Fully qualified image name.| None| '$(tasks.build-image-index.results.IMAGE_URL)'|
+### fbc-target-index-pruning-check:0.1 task parameters
+|name|description|default value|already set by|
+|---|---|---|---|
+|IMAGE_URL| Fully qualified image name.| None| '$(tasks.build-image-index.results.IMAGE_URL)'|
+|TARGET_INDEX| Image name of target index, minus tag. | `registry.redhat.io/redhat/redhat-operator-index`| |
 ### git-clone:0.1 task parameters
 |name|description|default value|already set by|
 |---|---|---|---|
