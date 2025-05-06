@@ -34,7 +34,12 @@ spec:
     export RETRY_INTERVAL=5
 
     if [ ! -e "/tekton/home/unique_related_images.txt" ]; then
-      echo "No relatedImages to process"
+      note="No related images to process"
+      echo "${note}"
+      TEST_OUTPUT=$(make_result_json \
+        -r "SKIPPED" \
+        -s "${success_counter}" -f "${failure_counter}" -w "${warnings_counter}" -t "${note}")
+      echo "${TEST_OUTPUT}" | tee "$(step.results.TEST_OUTPUT.path)"
       exit 0
     fi
 
