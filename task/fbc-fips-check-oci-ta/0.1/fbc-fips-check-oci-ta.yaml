@@ -41,7 +41,7 @@ spec:
         - use
         - $(params.SOURCE_ARTIFACT)=/var/workdir/source
     - name: get-unique-related-images
-      image: quay.io/konflux-ci/konflux-test:v1.4.34@sha256:62a7bf68015c711e0eb0698c10d203d0393a8e0efa09306f1fce543dea383f3c
+      image: quay.io/redhat-user-workloads/rhtap-integration-tenant/konflux-test@sha256:90b34e95299443887e81a76affb83b52f0c4a623d59da67915806f8aac903908
       env:
         - name: IMAGE_URL
           value: $(params.image-url)
@@ -55,6 +55,7 @@ spec:
         # shellcheck source=/dev/null
         . /utils.sh
 
+        echo "=== test-KONFLUX-8857 ==="
         unique_related_images=()
         digests_processed=()
         images_processed_template='{"image": {"pullspec": "'"$IMAGE_URL"'", "digests": [%s]}}'
@@ -132,6 +133,11 @@ spec:
           exit 0
         fi
 
+        echo "DEBUG: Packages in target index:"
+        for pkg in ${ti_pkg_names};do
+          echo "$pkg"
+        done
+
         declare -i unreleased_pkg_count=0
         for pkg in ${fragment_pkg_names}; do
           if ! echo "${ti_pkg_names}" | grep -Fwq "${pkg}"; then
@@ -140,6 +146,7 @@ spec:
           fi
         done
 
+        unreleased_pkg_count+=1
         # If package names not in the target index use the previous version
         if [[ "${unreleased_pkg_count}" -gt 0 ]]; then
           echo "One or more packages in the FBC fragment were not found in the target index."
