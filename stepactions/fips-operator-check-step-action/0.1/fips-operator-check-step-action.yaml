@@ -69,7 +69,7 @@ spec:
         echo "Could not inspect original pullspec $related_image. Checking if there's a mirror present"
         if [ -n "${image_mirror_map}" ]; then
           reg_and_repo=$(get_image_registry_and_repository "${related_image}")
-          mapfile -t mirrors < <(echo "${image_mirror_map}" | jq -r --arg image "${reg_and_repo}" '.[$image][]')
+          mapfile -t mirrors < <(get_image_mirror_list "${reg_and_repo}" "${image_mirror_map}")
           echo "Mirrors for $reg_and_repo are:"
           printf "%s\n" "${mirrors[@]}"
 
