@@ -58,6 +58,21 @@ spec:
         # shellcheck source=/dev/null
         . /utils.sh
 
+        extract_unique_package_names_from_catalog_file() {
+          local RENDER_FILE="$1"
+
+          if [ -z "$RENDER_FILE" ]; then
+            echo "extract_unique_package_names_from_catalog_file: missing positional parameter \$1 (opm render output file)" >&2
+            exit 2
+          fi
+          if [ ! -s "$RENDER_FILE" ]; then
+            echo "extract_unique_package_names_from_catalog_file: file not found or empty: $RENDER_FILE" >&2
+            exit 2
+          fi
+
+          tr -d '\000-\031' < "$RENDER_FILE" | jq -r 'select(.schema == "olm.package") | .name'
+        }
+
         unique_related_images=()
         digests_processed=()
         images_processed_template='{"image": {"pullspec": "'"$IMAGE_URL"'", "digests": [%s]}}'
@@ -105,9 +120,9 @@ spec:
           TEST_OUTPUT=$(make_result_json -r ERROR -t "${note}")
           exit 0
         fi
-        rendered_fbc_image=$(cat "${rendered_fbc_image_file}")
-        echo "Getting package names in FBC fragment"
-        if ! fragment_pkg_names=$(extract_unique_package_names_from_catalog "${rendered_fbc_image}"); then
+
+        echo "Getting package names in FBC fragment with new extract_unique_package_names_from_catalog_file method..."
+        if ! fragment_pkg_names=$(extract_unique_package_names_from_catalog_file "${rendered_fbc_image_file}"); then
           note="Task $(context.task.name) failed: Could not get package names from FBC fragment."
           echo "${note}"
           TEST_OUTPUT=$(make_result_json -r FAILURE -f 1 -t "$note")
@@ -126,8 +141,8 @@ spec:
           exit 0
         fi
 
-        rendered_ti=$(cat "${rendered_target_index_file}")
-        if ! ti_pkg_names=$(extract_unique_package_names_from_catalog "${rendered_ti}"); then
+        echo "Getting package names in target index with new extract_unique_package_names_from_catalog_file method..."
+        if ! ti_pkg_names=$(extract_unique_package_names_from_catalog_file "${rendered_target_index_file}"); then
           note="Task $(context.task.name) failed: Could not get package names from the target index."
           echo "${note}"
           TEST_OUTPUT=$(make_result_json -r FAILURE -f 1 -t "$note")
